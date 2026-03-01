@@ -21,11 +21,11 @@ app.locals.broadcastMatchCreation = broadcastMatchCreation;
 
 // Middleware
 app.use(cors());
+app.use(securityMiddleware());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(morgan('combined'));
-app.use(securityMiddleware());
 
 // Simple route
 app.get('/', (req, res) => {

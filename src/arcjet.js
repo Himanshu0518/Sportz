@@ -23,7 +23,7 @@ function initializeArchjet() {
     rules: [
       shield({ mode: arcjetMode }),
       tokenBucket({
-        mode: "LIVE",
+        mode: arcjetMode,
         refillRate: 5,
         interval: 10,
         capacity: 10,
@@ -57,10 +57,6 @@ export function getWsArcjet() {
   }
   return wsArcjetInstance;
 }
-
-// Lazy getters for backward compatibility
-export const httpArchjet = null; // Will be initialized on first access
-export const wsArcjet = null;
 
 export function securityMiddleware() {
   return async (req, res, next) => {
