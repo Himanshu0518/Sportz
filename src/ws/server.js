@@ -1,4 +1,5 @@
 import {WebSocket, WebSocketServer} from 'ws';
+import { getWsArcjet } from '../arcjet.js';
 
 
 export function sendJSON(socket,payload){
@@ -26,9 +27,7 @@ export function setupWebSocketServer(server) {
 
     // Heartbeat interval (ms)
     const HEARTBEAT_INTERVAL = 30000;
-    const heartbeat = () => {
-        this.isAlive = true;
-    };
+  
 
     // Helper for authentication (replace with real logic)
     function authenticateToken(token) {
@@ -36,7 +35,26 @@ export function setupWebSocketServer(server) {
         return typeof token === 'string' && token.length > 0;
     }
 
-    wss.on('connection', (socket, req) => {
+    wss.on('connection', async (socket, req) => {
+
+        try {
+            const wsArcjet = getWsArcjet();
+            if(wsArcjet){
+                const decision = await wsArcjet.protect(req);
+
+                if(decision.isDenied()){
+                   const code = decision.reason.isRateLimit() ? 1013 : 1008;
+                   const reason = decision.reason.isRateLimit() ? 'Rate limit exceeded' : 'Access denied';
+                   socket.close(code, reason);
+                   return;
+                }
+            }
+        } catch(err){
+            console.error('Error in Arcjet WebSocket protection', err);
+            socket.close(1011, 'Service unavailable');
+            return;
+        }
+
         // --- AUTHENTICATION ---
         let token = null;
         try {
@@ -48,7 +66,7 @@ export function setupWebSocketServer(server) {
         if (!authenticateToken(token)) {
             socket.close(4001, 'Authentication failed');
             return;
-        }
+        } 
 
         // --- HEARTBEAT ---
         socket.isAlive = true;

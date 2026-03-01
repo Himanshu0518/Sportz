@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import http from 'http';
 import dotenv from 'dotenv';
 import {setupWebSocketServer} from './ws/server.js';
+import {securityMiddleware} from './arcjet.js';
 dotenv.config();
 
 import { matchesRouter } from './routes/matches.js';
@@ -20,6 +21,7 @@ app.locals.broadcastMatchCreation = broadcastMatchCreation;
 
 // Middleware
 app.use(cors());
+app.use(securityMiddleware());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
