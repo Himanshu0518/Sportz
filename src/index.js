@@ -1,11 +1,22 @@
-
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import http from 'http';
+import dotenv from 'dotenv';
+import {setupWebSocketServer} from './ws/server.js';
+dotenv.config();
+
+import { matchesRouter } from './routes/matches.js';
 
 const app = express();
-const PORT = 8000;
+
+// Use 0.0.0.0 for HOST to allow external/containerized access
+const PORT = process.env.PORT || 8000;
+const HOST = process.env.HOST || '0.0.0.0';
+const server = http.createServer(app);
+const { broadcastMatchCreation } = setupWebSocketServer(server);
+app.locals.broadcastMatchCreation = broadcastMatchCreation;
 
 // Middleware
 app.use(cors());
@@ -20,9 +31,8 @@ app.get('/', (req, res) => {
 });
 
 
-import { matchesRouter } from './routes/matches.js';
 app.use('/matches', matchesRouter);
 
-app.listen(PORT, () => {
-	console.log(`Server listening on port ${PORT}`);
+server.listen(PORT, HOST, () => {
+    console.log(`Server listening on http://${HOST}:${PORT}`);
 });
