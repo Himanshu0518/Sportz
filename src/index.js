@@ -19,6 +19,10 @@ app.get('/', (req, res) => {
 	res.send('Express server is running!');
 });
 
+
+import { matchesRouter } from './routes/matches.js';
+app.use('/matches', matchesRouter);
+
 app.listen(PORT, () => {
 	console.log(`Server listening on port ${PORT}`);
 });
