@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import http from 'http';
 import dotenv from 'dotenv';
 import {setupWebSocketServer} from './ws/server.js';
+import {securityMiddleware} from './arcjet.js';
 dotenv.config();
 
 import { matchesRouter } from './routes/matches.js';
@@ -24,6 +25,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(morgan('combined'));
+app.use(securityMiddleware());
 
 // Simple route
 app.get('/', (req, res) => {
